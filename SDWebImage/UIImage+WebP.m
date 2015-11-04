@@ -34,6 +34,8 @@ static void FreeImageData(void *info, const void *data, size_t size)
     }
 
     config.output.colorspace = config.input.has_alpha ? MODE_rgbA : MODE_RGB;
+    config.options.bypass_filtering = 1;
+    config.options.no_fancy_upsampling = 1;
     config.options.use_threads = 1;
 
     // Decode the WebP image data into a RGBA value array.

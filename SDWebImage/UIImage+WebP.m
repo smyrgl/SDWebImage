@@ -16,9 +16,14 @@
 #endif
 
 // Callback for CGDataProviderRelease
-static void FreeImageData(void *info, const void *data, size_t size)
+static void free_image_data(void *info, const void *data, size_t size)
 {
-    free((void *)data);
+    if(info != NULL) {
+        WebPFreeDecBuffer(&(((WebPDecoderConfig *) info)->output));
+        free(info);
+    } else {
+        free((void *) data);
+    }
 }
 
 @implementation UIImage (WebP)
@@ -52,7 +57,7 @@ static void FreeImageData(void *info, const void *data, size_t size)
 
     // Construct a UIImage from the decoded RGBA value array.
     CGDataProviderRef provider =
-    CGDataProviderCreateWithData(NULL, config.output.u.RGBA.rgba, config.output.u.RGBA.size, FreeImageData);
+    CGDataProviderCreateWithData(&config, config.output.u.RGBA.rgba, config.output.u.RGBA.size, FreeImageData);
     CGColorSpaceRef colorSpaceRef = CGColorSpaceCreateDeviceRGB();
     CGBitmapInfo bitmapInfo = config.input.has_alpha ? kCGBitmapByteOrder32Big | kCGImageAlphaPremultipliedLast : 0;
     size_t components = config.input.has_alpha ? 4 : 3;
